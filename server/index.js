@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { Innertube } = require('youtubei.js');
+const { Innertube, UniversalCache } = require('youtubei.js');
 // exec removed for Vercel compatibility
 
 const app = express();
@@ -25,7 +25,12 @@ let yt = null;
 
 async function initYouTube() {
     try {
-        yt = await Innertube.create({ lang: 'en', location: 'US' });
+        yt = await Innertube.create({
+            lang: 'en',
+            location: 'US',
+            cache: new UniversalCache(false),
+            generate_session_locally: true
+        });
         console.log('YouTube Music client initialized');
     } catch (error) {
         console.error('Failed to initialize YouTube client:', error.message);
