@@ -1,0 +1,313 @@
+/* Song Menu Styles */
+.song-menu-container {
+    position: relative;
+    display: inline-flex;
+}
+
+.song-menu-trigger {
+    background: transparent;
+    border: none;
+    padding: var(--space-xs);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    opacity: 0;
+}
+
+.song-menu-trigger:hover {
+    background: var(--color-surface-variant);
+    color: var(--color-text-primary);
+}
+
+.song-menu-trigger svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Show menu trigger on parent hover */
+.song-card:hover .song-menu-trigger,
+.media-card:hover .song-menu-trigger,
+.queue-item:hover .song-menu-trigger,
+.song-menu-container:focus-within .song-menu-trigger {
+    opacity: 1;
+}
+
+.song-menu {
+    position: absolute;
+    min-width: 200px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-dropdown);
+    overflow: hidden;
+    animation: menuFadeIn 0.15s ease-out;
+}
+
+.song-menu.bottom-left {
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+}
+
+.song-menu.bottom-right {
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+}
+
+.song-menu.top-left {
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 4px;
+}
+
+@keyframes menuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.song-menu-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    text-align: left;
+}
+
+.song-menu-item:hover {
+    background: var(--color-surface-variant);
+}
+
+.song-menu-item svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+}
+
+.song-menu-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: var(--space-xs) 0;
+}
+
+.playlist-picker {
+    max-height: 200px;
+    overflow-y: auto;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.playlist-picker-item {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    padding-left: calc(var(--space-md) + 28px);
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--transition-fast);
+}
+
+.playlist-picker-item:hover {
+    background: var(--color-surface-variant);
+    color: var(--color-text-primary);
+}
+
+.playlist-picker-item.new {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+/* Queue Panel Styles */
+.queue-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 360px;
+    max-width: 90vw;
+    height: calc(100vh - 90px);
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    z-index: var(--z-modal);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--transition-normal);
+}
+
+.queue-panel.open {
+    transform: translateX(0);
+}
+
+.queue-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.queue-panel-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.queue-panel-actions {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.queue-panel-actions button {
+    background: transparent;
+    border: none;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+}
+
+.queue-panel-actions button:hover {
+    background: var(--color-surface-variant);
+    color: var(--color-text-primary);
+}
+
+.queue-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-sm);
+}
+
+.queue-section {
+    margin-bottom: var(--space-md);
+}
+
+.queue-section-title {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-xs) var(--space-sm);
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.queue-item:hover {
+    background: var(--color-surface-variant);
+}
+
+.queue-item.playing {
+    background: var(--color-primary-container);
+}
+
+.queue-item-thumbnail {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    background: var(--color-surface-variant);
+}
+
+.queue-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.queue-item-title {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-item-artist {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-item-remove {
+    background: transparent;
+    border: none;
+    padding: var(--space-xs);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.queue-item:hover .queue-item-remove {
+    opacity: 1;
+}
+
+.queue-item-remove:hover {
+    color: var(--color-error);
+}
+
+.queue-empty {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--color-text-secondary);
+}
+
+.queue-empty svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-sm);
+    opacity: 0.5;
+}
+
+/* Queue overlay */
+.queue-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: calc(var(--z-modal) - 1);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+}
+
+.queue-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}

@@ -1,0 +1,298 @@
+/* Transfer Modal Styles */
+.transfer-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.transfer-modal {
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+.transfer-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.transfer-modal-header h2 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+}
+
+.transfer-close-btn {
+    padding: var(--space-xs);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.transfer-close-btn:hover {
+    background: var(--color-surface-variant);
+    color: var(--color-text-primary);
+}
+
+.transfer-close-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.transfer-modal-content {
+    padding: var(--space-lg);
+    overflow-y: auto;
+    max-height: calc(90vh - 80px);
+}
+
+.transfer-menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.transfer-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-surface-variant);
+    border-radius: var(--radius-lg);
+    text-align: left;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.transfer-option:hover {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+}
+
+.transfer-option svg {
+    width: 32px;
+    height: 32px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.transfer-option strong {
+    display: block;
+    font-size: var(--font-size-md);
+    margin-bottom: var(--space-xs);
+}
+
+.transfer-option p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.transfer-divider {
+    text-align: center;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    padding: var(--space-md) 0;
+    position: relative;
+}
+
+.transfer-divider::before,
+.transfer-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: var(--color-border);
+}
+
+.transfer-divider::before {
+    left: 0;
+}
+
+.transfer-divider::after {
+    right: 0;
+}
+
+/* Share Mode */
+.transfer-back {
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    padding: var(--space-xs) 0;
+    margin-bottom: var(--space-md);
+}
+
+.transfer-qr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-lg);
+    background: #fff;
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-md);
+}
+
+.transfer-qr {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-md);
+}
+
+.transfer-peer-id {
+    margin-top: var(--space-md);
+    font-size: var(--font-size-sm);
+    color: #333;
+}
+
+.transfer-peer-id code {
+    background: #f0f0f0;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    user-select: all;
+}
+
+.transfer-instructions {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    text-align: center;
+    line-height: 1.5;
+}
+
+.transfer-status {
+    text-align: center;
+    padding: var(--space-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.transfer-loading {
+    padding: var(--space-xl);
+    color: var(--color-text-secondary);
+}
+
+/* Receive Mode */
+.transfer-receive-content {
+    text-align: center;
+    padding: var(--space-lg);
+}
+
+.transfer-receive-content p {
+    margin-bottom: var(--space-lg);
+}
+
+.transfer-receive-content code {
+    background: var(--color-surface-variant);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+}
+
+.transfer-connect-btn {
+    background: var(--color-primary);
+    color: var(--color-text-on-primary);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+}
+
+.transfer-connect-btn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: scale(1.02);
+}
+
+.transfer-connect-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.transfer-received-data {
+    background: var(--color-surface-variant);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.transfer-received-data h4 {
+    margin-bottom: var(--space-sm);
+}
+
+.transfer-received-data ul {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-lg);
+}
+
+.transfer-received-data li {
+    list-style: disc;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.transfer-import-btn {
+    width: 100%;
+    background: var(--color-success);
+    color: white;
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+}
+
+.transfer-import-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* Skeleton Loading */
+.skeleton {
+    background: linear-gradient(90deg,
+            var(--color-surface-variant) 25%,
+            var(--color-surface) 50%,
+            var(--color-surface-variant) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-card {
+    height: 180px;
+}
+
+.skeleton-song {
+    height: 64px;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 60%;
+}
+
+.skeleton-text-sm {
+    height: 12px;
+    width: 40%;
+}
