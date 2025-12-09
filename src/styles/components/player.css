@@ -327,6 +327,23 @@
     .mini-player {
         display: flex;
     }
+
+    .queue-panel {
+        width: 100%;
+        top: 0;
+        bottom: 0;
+        /* Full screen coverage */
+        border-left: none;
+        transform: translateY(100%);
+        /* Slide up from bottom */
+        z-index: var(--z-modal);
+        padding-bottom: calc(var(--safe-area-inset-bottom) + 20px);
+        /* iPhone Home Bar */
+    }
+
+    .queue-panel.open {
+        transform: translateY(0);
+    }
 }
 
 /* Queue Panel */
@@ -342,12 +359,12 @@
     z-index: var(--z-modal);
     display: flex;
     flex-direction: column;
-    animation: slideIn var(--transition-normal) ease-out reverse;
-    transform-origin: right;
+    transform: translateX(100%);
+    transition: transform var(--transition-normal) ease-out;
 }
 
-.queue-panel[data-open="true"] {
-    animation: slideIn var(--transition-normal) ease-out;
+.queue-panel.open {
+    transform: translateX(0);
 }
 
 .queue-header {
@@ -356,6 +373,157 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+/* Mobile Close Button */
+.mobile-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-primary);
+    padding: var(--space-sm);
+    display: none;
+    /* Hidden on desktop */
+}
+
+/* Mobile Player Controls */
+.mobile-player-controls {
+    display: none;
+    /* Hidden on desktop */
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-md) 0 var(--space-xl);
+    gap: var(--space-lg);
+}
+
+.mobile-player-artwork {
+    width: 250px;
+    height: 250px;
+    margin: 0 auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+}
+
+.mobile-player-artwork img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mobile-player-info {
+    text-align: center;
+}
+
+.mobile-player-info .title {
+    font-size: var(--font-size-xl);
+    font-weight: bold;
+    margin-bottom: var(--space-xs);
+}
+
+.mobile-player-info .artist {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+}
+
+.mobile-player-progress-container {
+    width: 100%;
+    padding: 0 var(--space-md);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--color-surface-variant);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-sm);
+    position: relative;
+    cursor: pointer;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+}
+
+.time-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+.mobile-player-buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    padding: var(--space-sm);
+    cursor: pointer;
+}
+
+.btn-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.btn-icon.active {
+    color: var(--color-primary);
+}
+
+.btn-play-pause {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-play-pause svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Desktop Only Elements */
+.desktop-close-btn,
+.desktop-now-playing {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    /* Mobile overrides are handled in the previous media query block or main styles */
+
+    .mobile-close-btn {
+        display: block;
+    }
+
+    .mobile-player-controls {
+        display: flex;
+    }
+
+    .desktop-close-btn,
+    .desktop-now-playing {
+        display: none;
+    }
+
+    .queue-panel-title {
+        /* Center title on mobile */
+        flex: 1;
+        text-align: center;
+    }
 }
 
 .queue-title {

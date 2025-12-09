@@ -4,7 +4,7 @@ import useSettingsStore from './stores/settingsStore';
 import usePlayerStore from './stores/playerStore';
 
 // Components
-import Sidebar from './components/Layout/Sidebar';
+import Sidebar, { MobileNav, MobileHeader } from './components/Layout/Sidebar';
 import Player from './components/Player/Player';
 import PlaylistTransfer from './components/Settings/PlaylistTransfer';
 
@@ -22,6 +22,7 @@ import './styles/components/transfer.css';
 
 const App = () => {
   const { theme } = useSettingsStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Apply theme
   useEffect(() => {
@@ -42,10 +43,23 @@ const App = () => {
     }
   }, [theme]);
 
+  // Fix mobile viewport height
+  useEffect(() => {
+    const setVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
+    return () => window.removeEventListener('resize', setVh);
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="app-container">
-        <Sidebar />
+        <MobileHeader onMenuClick={() => setMobileMenuOpen(true)} />
+        <Sidebar mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+        <MobileNav />
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />

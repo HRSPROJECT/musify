@@ -51,7 +51,22 @@ const MusicNoteIcon = () => (
     </svg>
 );
 
-const Sidebar = () => {
+export const MobileHeader = ({ onMenuClick }) => (
+    <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={onMenuClick}>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+            </svg>
+        </button>
+        <div className="mobile-logo">
+            <MusicNoteIcon />
+            <span>Musify</span>
+        </div>
+        <div className="mobile-header-spacer" />
+    </div>
+);
+
+const Sidebar = ({ mobileOpen, onClose }) => {
     const { playlists, likedSongs, createPlaylist } = usePlaylistStore();
 
     const handleCreatePlaylist = () => {
@@ -62,117 +77,166 @@ const Sidebar = () => {
     };
 
     return (
-        <aside className="sidebar">
-            <div className="sidebar-header">
-                <div className="sidebar-logo">
-                    <MusicNoteIcon />
-                    Musify
-                </div>
-            </div>
+        <>
+            {/* Mobile Overlay */}
+            <div
+                className={`sidebar-overlay ${mobileOpen ? 'open' : ''}`}
+                onClick={onClose}
+            />
 
-            <nav className="sidebar-nav">
-                <div className="sidebar-section">
-                    <NavLink
-                        to="/"
-                        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                    >
-                        <HomeIcon />
-                        Home
-                    </NavLink>
-                    <NavLink
-                        to="/search"
-                        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                    >
-                        <SearchIcon />
-                        Search
-                    </NavLink>
-                    <NavLink
-                        to="/library"
-                        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                    >
-                        <LibraryIcon />
-                        Library
-                    </NavLink>
+            <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
+                <div className="sidebar-header">
+                    <div className="sidebar-logo">
+                        <MusicNoteIcon />
+                        Musify
+                    </div>
+                    {/* Mobile Close Button */}
+                    <button className="sidebar-close-btn" onClick={onClose}>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                        </svg>
+                    </button>
                 </div>
 
-                <div className="sidebar-section">
-                    <div className="sidebar-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>Playlists</span>
-                        <button
-                            onClick={handleCreatePlaylist}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: 'var(--color-text-secondary)',
-                                cursor: 'pointer',
-                                padding: '4px',
-                                borderRadius: '4px',
-                            }}
-                            title="Create Playlist"
+                <nav className="sidebar-nav">
+                    <div className="sidebar-section">
+                        <NavLink
+                            to="/"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                            onClick={onClose}
                         >
-                            <AddIcon />
-                        </button>
+                            <HomeIcon />
+                            Home
+                        </NavLink>
+                        <NavLink
+                            to="/search"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                            onClick={onClose}
+                        >
+                            <SearchIcon />
+                            Search
+                        </NavLink>
+                        <NavLink
+                            to="/library"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                            onClick={onClose}
+                        >
+                            <LibraryIcon />
+                            Library
+                        </NavLink>
                     </div>
 
-                    {/* Liked Songs */}
-                    <NavLink
-                        to="/liked"
-                        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                    >
-                        <HeartIcon />
-                        Liked Songs
-                        {likedSongs.length > 0 && (
-                            <span style={{
-                                marginLeft: 'auto',
-                                fontSize: 'var(--font-size-xs)',
-                                color: 'var(--color-text-secondary)',
-                            }}>
-                                {likedSongs.length}
-                            </span>
-                        )}
-                    </NavLink>
-
-                    {/* User Playlists */}
-                    {playlists.map(playlist => (
-                        <NavLink
-                            key={playlist.id}
-                            to={`/playlist/${playlist.id}`}
-                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                        >
-                            <PlaylistIcon />
-                            <span className="truncate" style={{ flex: 1 }}>{playlist.name}</span>
-                            <span style={{
-                                fontSize: 'var(--font-size-xs)',
-                                color: 'var(--color-text-secondary)',
-                            }}>
-                                {playlist.songs.length}
-                            </span>
-                        </NavLink>
-                    ))}
-
-                    {playlists.length === 0 && (
-                        <div style={{
-                            padding: 'var(--space-sm)',
-                            fontSize: 'var(--font-size-xs)',
-                            color: 'var(--color-text-secondary)',
-                            textAlign: 'center',
-                        }}>
-                            No playlists yet
+                    <div className="sidebar-section">
+                        <div className="sidebar-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>Playlists</span>
+                            <button
+                                onClick={handleCreatePlaylist}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--color-text-secondary)',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    borderRadius: '4px',
+                                }}
+                                title="Create Playlist"
+                            >
+                                <AddIcon />
+                            </button>
                         </div>
-                    )}
-                </div>
 
-                <div className="sidebar-section" style={{ marginTop: 'auto' }}>
-                    <NavLink
-                        to="/settings"
-                        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                    >
-                        <SettingsIcon />
-                        Settings
-                    </NavLink>
-                </div>
-            </nav>
-        </aside>
+                        {/* Liked Songs */}
+                        <NavLink
+                            to="/liked"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                            onClick={onClose}
+                        >
+                            <HeartIcon />
+                            Liked Songs
+                            {likedSongs.length > 0 && (
+                                <span style={{
+                                    marginLeft: 'auto',
+                                    fontSize: 'var(--font-size-xs)',
+                                    color: 'var(--color-text-secondary)',
+                                }}>
+                                    {likedSongs.length}
+                                </span>
+                            )}
+                        </NavLink>
+
+                        {/* User Playlists */}
+                        {playlists.map(playlist => (
+                            <NavLink
+                                key={playlist.id}
+                                to={`/playlist/${playlist.id}`}
+                                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                                onClick={onClose}
+                            >
+                                <PlaylistIcon />
+                                <span className="truncate" style={{ flex: 1 }}>{playlist.name}</span>
+                                <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    color: 'var(--color-text-secondary)',
+                                }}>
+                                    {playlist.songs.length}
+                                </span>
+                            </NavLink>
+                        ))}
+
+                        {playlists.length === 0 && (
+                            <div style={{
+                                padding: 'var(--space-sm)',
+                                fontSize: 'var(--font-size-xs)',
+                                color: 'var(--color-text-secondary)',
+                                textAlign: 'center',
+                            }}>
+                                No playlists yet
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="sidebar-section" style={{ marginTop: 'auto' }}>
+                        <NavLink
+                            to="/settings"
+                            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                            onClick={onClose}
+                        >
+                            <SettingsIcon />
+                            Settings
+                        </NavLink>
+                    </div>
+                </nav>
+            </aside>
+        </>
+    );
+};
+
+export const MobileNav = () => {
+    return (
+        <nav className="mobile-nav">
+            <div className="mobile-nav-items">
+                <NavLink to="/" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
+                    <HomeIcon />
+                    <span>Home</span>
+                </NavLink>
+                <NavLink to="/search" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
+                    <SearchIcon />
+                    <span>Search</span>
+                </NavLink>
+                <NavLink to="/library" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
+                    <LibraryIcon />
+                    <span>Library</span>
+                </NavLink>
+                <NavLink to="/liked" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
+                    <HeartIcon />
+                    <span>Liked</span>
+                </NavLink>
+                <NavLink to="/settings" className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}>
+                    <SettingsIcon />
+                    <span>Settings</span>
+                </NavLink>
+            </div>
+        </nav>
     );
 };
 

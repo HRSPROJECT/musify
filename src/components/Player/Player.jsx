@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import usePlayerStore from '../../stores/playerStore';
 import QueuePanel from './QueuePanel';
 import '../../styles/components/player.css';
@@ -79,8 +79,8 @@ const formatTime = (seconds) => {
 };
 
 const Player = () => {
-    const audioRef = useRef(null);
     const [queueOpen, setQueueOpen] = useState(false);
+    const audioRef = useRef(null);
 
     const {
         currentTrack,
@@ -107,12 +107,26 @@ const Player = () => {
         seek,
     } = usePlayerStore();
 
-    // Set audio ref on mount
-    useEffect(() => {
-        if (audioRef.current) {
-            setAudioRef(audioRef.current);
-        }
+    // Callback ref to ensure store always has valid reference
+    const setRef = useCallback((node) => {
+        audioRef.current = node;
+        setAudioRef(node);
     }, [setAudioRef]);
+
+    // Force sync audio state with store state (Declarative Playback)
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        if (isPlaying && audio.paused) {
+            audio.play().catch(e => {
+                // Ignore AbortError which happens when pausing quickly after playing
+                if (e.name !== 'AbortError') console.error('Play failed:', e);
+            });
+        } else if (!isPlaying && !audio.paused) {
+            audio.pause();
+        }
+    }, [isPlaying]);
 
     // Update audio source - optimized for fast playback
     useEffect(() => {
@@ -127,20 +141,22 @@ const Player = () => {
         // Set new source and play immediately
         audio.src = audioUrl;
 
-        // Try to play immediately - most browsers support this
-        const playPromise = audio.play();
+        // Try to play immediately if supposed to be playing
+        if (isPlaying) {
+            const playPromise = audio.play();
 
-        if (playPromise !== undefined) {
-            playPromise.catch(err => {
-                // Auto-play was prevented, wait for user interaction or canplay
-                if (err.name === 'NotAllowedError') {
-                    // Will be handled by user clicking play
-                } else if (err.name === 'AbortError') {
-                    // Play was interrupted by new source - ignore
-                } else {
-                    console.error('Play failed:', err.message);
-                }
-            });
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    // Auto-play was prevented, wait for user interaction or canplay
+                    if (err.name === 'NotAllowedError') {
+                        // Will be handled by user clicking play
+                    } else if (err.name === 'AbortError') {
+                        // Play was interrupted by new source - ignore
+                    } else {
+                        console.error('Play failed:', err.message);
+                    }
+                });
+            }
         }
 
         const handleError = () => {
@@ -152,7 +168,39 @@ const Player = () => {
         return () => {
             audio.removeEventListener('error', handleError);
         };
-    }, [audioUrl]);
+    }, [audioUrl, isPlaying]);
+
+    // Media Session API Integration
+    useEffect(() => {
+        if (!('mediaSession' in navigator) || !currentTrack) return;
+
+        // Update Metadata
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: currentTrack.title,
+            artist: currentTrack.artist,
+            artwork: [
+                { src: currentTrack.thumbnail, sizes: '512x512', type: 'image/jpeg' },
+                { src: currentTrack.thumbnail, sizes: '96x96', type: 'image/jpeg' },
+            ]
+        });
+
+        // Action Handlers
+        navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
+        navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
+        navigator.mediaSession.setActionHandler('previoustrack', playPrevious);
+        navigator.mediaSession.setActionHandler('nexttrack', playNext);
+
+        // Update Playback State
+        navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+
+        // Cleanup
+        return () => {
+            navigator.mediaSession.setActionHandler('play', null);
+            navigator.mediaSession.setActionHandler('pause', null);
+            navigator.mediaSession.setActionHandler('previoustrack', null);
+            navigator.mediaSession.setActionHandler('nexttrack', null);
+        };
+    }, [currentTrack, isPlaying, setIsPlaying, playPrevious, playNext]);
 
     // Handle audio events
     const handleTimeUpdate = () => {
@@ -195,7 +243,7 @@ const Player = () => {
     return (
         <>
             <audio
-                ref={audioRef}
+                ref={setRef}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={handleEnded}
@@ -242,7 +290,7 @@ const Player = () => {
                         <button
                             className="player-btn player-btn-main"
                             onClick={togglePlay}
-                            disabled={isLoading}
+                            disabled={isLoading && !isPlaying}
                             title={isPlaying ? 'Pause' : 'Play'}
                         >
                             {isLoading ? (
@@ -304,7 +352,10 @@ const Player = () => {
             </div>
 
             {/* Mini Player (Mobile) */}
-            <div className="mini-player">
+            <div
+                className="mini-player"
+                onClick={() => setQueueOpen(true)} // Can use QueuePanel as full player for now or create distinct one
+            >
                 <div className="mini-player-progress">
                     <div
                         className="mini-player-progress-fill"
@@ -329,17 +380,32 @@ const Player = () => {
                     </div>
                 </div>
                 <div className="mini-player-controls">
-                    <button className="player-btn" onClick={togglePlay}>
+                    <button
+                        className="player-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            togglePlay();
+                        }}
+                    >
                         {isPlaying ? <PauseIcon /> : <PlayIcon />}
                     </button>
-                    <button className="player-btn" onClick={playNext}>
+                    <button
+                        className="player-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            playNext();
+                        }}
+                    >
                         <SkipNextIcon />
                     </button>
                 </div>
             </div>
 
-            {/* Queue Panel */}
-            <QueuePanel isOpen={queueOpen} onClose={() => setQueueOpen(false)} />
+            {/* Queue Panel (serving as mobile interface too) */}
+            <QueuePanel
+                isOpen={queueOpen}
+                onClose={() => setQueueOpen(false)}
+            />
         </>
     );
 };

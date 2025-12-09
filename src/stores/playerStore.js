@@ -51,6 +51,15 @@ const usePlayerStore = create(
 
             // Play a track - optimized for speed
             playTrack: async (track) => {
+                // Pause immediately to prevent playing while loading
+                const { audioRef } = get();
+                if (audioRef) {
+                    audioRef.pause();
+                } else {
+                    // Fallback: try to find the audio element directly
+                    document.querySelector('audio')?.pause();
+                }
+
                 const trackId = track.id || track.url?.split('v=')[1];
 
                 // Immediately update UI with track info
@@ -82,6 +91,10 @@ const usePlayerStore = create(
 
                 try {
                     const streamData = await piped.getStream(trackId);
+
+                    // Race condition check: if track changed while fetching, abort
+                    if (get().currentTrack?.id !== trackId) return;
+
                     const audioStream = piped.getBestAudioStream(streamData);
 
                     if (!audioStream) {
@@ -114,7 +127,10 @@ const usePlayerStore = create(
                     });
                 } catch (error) {
                     console.error('Failed to play track:', error);
-                    set({ error: error.message, isLoading: false, isPlaying: false });
+                    // Only update error if we're still on the same track
+                    if (get().currentTrack?.id === trackId) {
+                        set({ error: error.message, isLoading: false, isPlaying: false });
+                    }
                 }
             },
 
@@ -246,14 +262,7 @@ const usePlayerStore = create(
 
             // Playback controls
             togglePlay: () => {
-                const { audioRef, isPlaying } = get();
-                if (!audioRef) return;
-
-                if (isPlaying) {
-                    audioRef.pause();
-                } else {
-                    audioRef.play().catch(console.error);
-                }
+                set((state) => ({ isPlaying: !state.isPlaying }));
             },
 
             setIsPlaying: (isPlaying) => set({ isPlaying }),
