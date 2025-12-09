@@ -500,7 +500,8 @@ app.get('/api/health', (req, res) => {
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Handle Client-Side Routing (SPA)
-app.get('*', (req, res) => {
+// Handle Client-Side Routing (SPA)
+app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
