@@ -89,6 +89,16 @@ const usePlayerStore = create(
                     return;
                 }
 
+                // Fire-and-forget: Pre-fetch next songs in queue immediately
+                // Don't await this, let it run in parallel with current song load
+                const { queue, queueIndex } = get();
+                [1, 2, 3, 4, 5].forEach(offset => {
+                    const nextTrack = queue[queueIndex + offset];
+                    if (nextTrack?.id) {
+                        get().prefetchAudio(nextTrack.id);
+                    }
+                });
+
                 try {
                     const streamData = await piped.getStream(trackId);
 
@@ -116,15 +126,6 @@ const usePlayerStore = create(
                         audioUrl: audioStream.url,
                         isLoading: false,
                     }));
-
-                    // Pre-fetch next songs in queue
-                    const { queue, queueIndex } = get();
-                    [1, 2, 3].forEach(offset => {
-                        const nextTrack = queue[queueIndex + offset];
-                        if (nextTrack?.id) {
-                            get().prefetchAudio(nextTrack.id);
-                        }
-                    });
                 } catch (error) {
                     console.error('Failed to play track:', error);
                     // Only update error if we're still on the same track

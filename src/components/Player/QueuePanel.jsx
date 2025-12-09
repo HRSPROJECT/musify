@@ -87,7 +87,8 @@ const QueuePanel = ({ isOpen, onClose }) => {
         toggleRepeat,
         currentTime,
         duration,
-        seek
+        seek,
+        prefetchAudio
     } = usePlayerStore();
 
     const currentSong = queue[queueIndex];
@@ -97,6 +98,10 @@ const QueuePanel = ({ isOpen, onClose }) => {
     const handlePlaySong = (track, index) => {
         usePlayerStore.setState({ queueIndex: index });
         playTrack(track);
+    };
+
+    const handleMouseEnter = (trackId) => {
+        if (trackId) prefetchAudio(trackId);
     };
 
     const handleProgressClick = (e) => {
@@ -224,6 +229,7 @@ const QueuePanel = ({ isOpen, onClose }) => {
                                                 key={`${track.id}-${actualIndex}`}
                                                 className="queue-item"
                                                 onClick={() => handlePlaySong(track, actualIndex)}
+                                                onMouseEnter={() => handleMouseEnter(track.id)}
                                             >
                                                 {track.thumbnail ? (
                                                     <img
@@ -265,6 +271,7 @@ const QueuePanel = ({ isOpen, onClose }) => {
                                             className="queue-item"
                                             style={{ opacity: 0.6 }}
                                             onClick={() => handlePlaySong(track, idx)}
+                                            onMouseEnter={() => handleMouseEnter(track.id)}
                                         >
                                             {track.thumbnail ? (
                                                 <img
