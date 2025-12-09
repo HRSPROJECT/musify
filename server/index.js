@@ -1,10 +1,11 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { Innertube, UniversalCache } = require('youtubei.js');
 // exec removed for Vercel compatibility
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors({
     origin: [
@@ -179,9 +180,14 @@ function isPlayableId(id) {
 }
 
 const ensureYT = async (req, res, next) => {
-    if (!yt) await initYouTube();
-    if (!yt) return res.status(500).json({ error: 'Not ready' });
-    next();
+    try {
+        if (!yt) await initYouTube();
+        if (!yt) throw new Error('YouTube client failed to initialize');
+        next();
+    } catch (error) {
+        console.error('ensureYT error:', error);
+        res.status(500).json({ error: 'YouTube Client Error', details: error.message, stack: error.stack });
+    }
 };
 
 // Format item to consistent structure
@@ -375,8 +381,8 @@ app.get('/api/trending', ensureYT, async (req, res) => {
         console.log('Found', unique.length, 'trending');
         res.json(unique);
     } catch (error) {
-        console.error('Trending error:', error.message);
-        res.status(500).json({ error: 'Failed to get trending' });
+        console.error('Trending error:', error);
+        res.status(500).json({ error: 'Failed to get trending', details: error.message, stack: error.stack });
     }
 });
 
@@ -490,16 +496,16 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', ytReady: !!yt });
 });
 
-// Export for Vercel
-module.exports = app;
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../dist')));
 
-// Only listen if run directly
-if (require.main === module) {
-    app.listen(PORT, async () => {
-        console.log('Server running on http://localhost:' + PORT);
-        await initYouTube();
-    });
-} else {
-    // Initialize lazily for serverless
-    initYouTube().catch(console.error);
-}
+// Handle Client-Side Routing (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+// Start server
+app.listen(PORT, async () => {
+    console.log('Server running on port ' + PORT);
+    await initYouTube();
+});
