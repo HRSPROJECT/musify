@@ -1,10 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { Innertube } = require('youtubei.js');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-
-const execAsync = promisify(exec);
+// exec removed for Vercel compatibility
 
 const app = express();
 const PORT = 3001;
@@ -40,7 +37,7 @@ const audioCache = new Map();
 const CACHE_DURATION = 30 * 60 * 1000;
 const pendingRequests = new Map();
 
-// Get audio URL using yt-dlp
+// Get audio URL using youtubei.js (pure JS, no binaries)
 async function getAudioUrl(videoId) {
     const cached = audioCache.get(videoId);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -54,15 +51,29 @@ async function getAudioUrl(videoId) {
 
     const requestPromise = (async () => {
         try {
-            const { stdout } = await execAsync(
-                `yt-dlp --no-warnings --no-playlist -f "bestaudio[ext=webm]/bestaudio" --get-url "https://music.youtube.com/watch?v=${videoId}"`,
-                { timeout: 15000 }
-            );
-            const url = stdout.trim();
+            if (!yt) await initYouTube();
+
+            // Use getInfo to get streaming data
+            const info = await yt.getBasicInfo(videoId, 'Android'); // Android client often yields better streams
+
+            // Extract best audio format
+            const formats = info.streaming_data?.formats?.concat(info.streaming_data?.adaptive_formats || []) || [];
+            const audioFormats = formats.filter(f => f.mime_type.startsWith('audio'));
+
+            if (audioFormats.length === 0) {
+                throw new Error('No audio formats found');
+            }
+
+            // Sort by bitrate desc
+            audioFormats.sort((a, b) => b.bitrate - a.bitrate);
+
+            const url = audioFormats[0].url;
+            if (!url) throw new Error('Failed to extract URL');
+
             audioCache.set(videoId, { url, timestamp: Date.now() });
             return url;
         } catch (error) {
-            console.error('yt-dlp error:', error.message);
+            console.error('Audio fetch error:', error.message);
             throw error;
         } finally {
             pendingRequests.delete(videoId);
@@ -273,21 +284,18 @@ app.get('/api/streams/:videoId', async (req, res) => {
         let thumbnail = null;
 
         try {
-            const { stdout } = await execAsync(
-                `yt-dlp --no-warnings --get-title --get-duration --get-thumbnail "https://www.youtube.com/watch?v=${videoId}"`,
-                { timeout: 10000 }
-            );
-            const lines = stdout.trim().split('\n');
-            title = lines[0] || 'Unknown';
-            if (lines[1]) {
-                const parts = lines[1].split(':').map(Number);
-                if (parts.length === 3) duration = parts[0] * 3600 + parts[1] * 60 + parts[2];
-                else if (parts.length === 2) duration = parts[0] * 60 + parts[1];
-                else duration = parts[0] || 0;
+            if (!yt) await initYouTube();
+            const info = await yt.getBasicInfo(videoId);
+            title = info.basic_info.title || 'Unknown';
+            duration = info.basic_info.duration || 0;
+            // Get best thumbnail
+            const thumbs = info.basic_info.thumbnail;
+            if (thumbs && thumbs.length) {
+                thumbnail = thumbs.sort((a, b) => b.width - a.width)[0].url;
             }
-            thumbnail = lines[2] || null;
+            uploader = info.basic_info.author || 'Unknown';
         } catch (e) {
-            console.log('Info fetch failed, using minimal data');
+            console.log('Info fetch failed:', e.message);
         }
 
         console.log('Got audio URL for:', videoId);
@@ -477,9 +485,16 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', ytReady: !!yt });
 });
 
-process.on('uncaughtException', (e) => console.error('Uncaught:', e.message));
+// Export for Vercel
+module.exports = app;
 
-app.listen(PORT, async () => {
-    console.log('Server running on http://localhost:' + PORT);
-    await initYouTube();
-});
+// Only listen if run directly
+if (require.main === module) {
+    app.listen(PORT, async () => {
+        console.log('Server running on http://localhost:' + PORT);
+        await initYouTube();
+    });
+} else {
+    // Initialize lazily for serverless
+    initYouTube().catch(console.error);
+}
